@@ -197,12 +197,24 @@ fork(void)
   }
 
   // Copy process state from proc.
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, curproc->vma)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
     return -1;
   }
+
+  for (int i = 0; i < MAXVMA; i++)
+  {
+    if (curproc->vma[i].length == 0)
+      break;
+    np->vma[i].start = curproc->vma[i].start;
+    np->vma[i].end = curproc->vma[i].end;
+    np->vma[i].file = curproc->vma[i].file;
+    np->vma[i].length = curproc->vma[i].length;
+    filedup(np->vma[i].file);
+  }
+  
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;

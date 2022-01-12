@@ -8,7 +8,7 @@
 #define MULT 63423
 #define BASE 93462
 #define RNDCNT 10
-#define FNAME "temp.txt"
+#define FNAME "test.txt"
 
 int gen_rand(int high)
 {
