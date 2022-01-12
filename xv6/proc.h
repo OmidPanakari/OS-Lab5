@@ -56,3 +56,12 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
+
+// Virtual Memory Area
+struct vma {
+  uint start;
+  uint end;
+  uint length;
+  struct file *file;
+};

@@ -442,3 +442,10 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+// Count number of free pages 
+int
+sys_get_free_pages_count(void)
+{
+  return count_free_pages();
+}
