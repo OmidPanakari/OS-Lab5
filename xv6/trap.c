@@ -77,6 +77,10 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
+  case T_PGFLT:
+    if (pgfhandler(rcr2()) < 0)
+      panic("page fault: unhandled");
+    break;
 
   //PAGEBREAK: 13
   default:

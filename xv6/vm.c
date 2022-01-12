@@ -385,6 +385,41 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
+// Handler for page fault
+int
+pgfhandler(uint addr)
+{
+  struct proc *p;
+  struct vma *vm = 0;
+  char *mapped;
+
+  // Check if this is a correct address
+  p = myproc();
+  for (int i = 0; i < MAXVMA; i++) {
+    if (p->vma[i].length > 0 && p->vma[i].start <= addr && p->vma[i].end >= addr) {
+      vm = &(p->vma[i]);
+      break;
+    }
+  }
+  if (vm == 0)
+    return -1;
+
+  // Allocate physical memory
+  addr = PGROUNDDOWN(addr);
+  mapped =  kalloc();
+  if (mapped == 0)
+    return 0;
+  memset(mapped, 0, PGSIZE);
+
+  // Map pages to physical memory
+  mappages(p->pgdir, (char*)addr, PGSIZE, V2P(mapped), PTE_W | PTE_U);
+
+  // Copy file content
+  fileread(vm->file, mapped, PGSIZE);
+
+  return 0;
+}
+
 //PAGEBREAK!
 // Blank page.
 //PAGEBREAK!

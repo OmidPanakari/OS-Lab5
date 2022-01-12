@@ -1,6 +1,14 @@
 // This file contains definitions for the
 // x86 memory management unit (MMU).
 
+// VMA protection level
+#define PROT_READ 0
+
+// VMA flags
+#define MAP_SHARED 0
+#define MAP_PRIVATE 1
+#define MAP_ANANYMOUS 2
+
 // Eflags register
 #define FL_IF           0x00000200      // Interrupt Enable
 

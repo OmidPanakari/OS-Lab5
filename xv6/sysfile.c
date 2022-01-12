@@ -449,3 +449,52 @@ sys_get_free_pages_count(void)
 {
   return count_free_pages();
 }
+
+// Maps file to virtual memory area
+int
+sys_mmap(void)
+{
+  uint addr;
+  int length, prot, flags, fd, offset;
+  struct proc *p;
+  struct file *f;
+  struct vma *prev = 0, *curr = 0;
+  if (
+    argint(0, (int*)&addr) < 0 
+    || argint(1, &length) < 0 
+    || argint(2, &prot) < 0 
+    || argint(3, &flags) < 0
+    || argint(4, &fd) < 0 
+    || argint(5, &offset) < 0
+  ) {
+    return 0;
+  }
+  if (addr != 0 || offset != 0 || prot != PROT_READ || flags != MAP_PRIVATE)
+    return 0;
+  
+  p = myproc();
+  f = p->ofile[fd];
+  for (int i = 0; i < MAXVMA; i++) {
+    if (p->vma[i].length == 0) {
+      curr = &p->vma[i];
+      break;
+    }
+    prev = &p->vma[i];
+  }
+
+  if (curr == 0) {
+    return 0;
+  }
+  if (prev == 0) {
+    curr->start = VMABASE;
+  } else {
+    curr->start = PGROUNDUP(prev->end);
+  }
+
+  
+  curr->length = length;
+  curr->end = curr->start + curr->length;
+  curr->file = f;
+  filedup(f);
+  return curr->start;
+}

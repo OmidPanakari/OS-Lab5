@@ -91,6 +91,13 @@ found:
 
   release(&ptable.lock);
 
+  // Init VMA
+  for (int i = 0; i < MAXVMA; i++)
+  {
+    p->vma[i].length = 0;
+    p->vma[i].file = 0;
+  }
+
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
     p->state = UNUSED;
@@ -233,6 +240,13 @@ exit(void)
 
   if(curproc == initproc)
     panic("init exiting");
+  
+  // Close all mapped files
+  for (int i = 0; i < MAXVMA; i++) {
+    if (curproc->vma[i].length > 0) {
+      fileclose(curproc->vma[i].file);
+    }
+  }
 
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){
@@ -532,3 +546,5 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
